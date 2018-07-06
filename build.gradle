@@ -3,5 +3,12 @@ apply plugin: 'java'
 repositories { jcenter() }
 
 dependencies {
-  testCompile group: 'junit', name: 'junit', version: '4.12'
+  // camel dependencies
+  compile 'org.apache.camel:camel-core:2.21.0'
+  compile 'org.apache.camel:camel-kafka:2.21.0'
+
+  // kafka dependencies
+  compile 'org.apache.kafka:kafka-clients:1.1.0'
+  compile 'org.apache.kafka:kafka-streams:1.1.0'
+  testCompile 'junit:junit:4.12'
 }
