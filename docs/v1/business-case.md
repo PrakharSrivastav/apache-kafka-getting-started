@@ -36,9 +36,9 @@ The scenario we intend to create is as follows
 Reference-style: 
 ![alt text][logo]
 
-[logo]: ./images/sequence.png "Sequence diagram"
+[logo]: ../images/sequence.png "Sequence diagram"
 
 ## Process Flow
 ![alt text][process]
 
-[process]: ./images/process.png "Process flow"
+[process]: ../images/process.png "Process flow"

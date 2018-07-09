@@ -7,8 +7,17 @@ dependencies {
   compile 'org.apache.camel:camel-core:2.21.0'
   compile 'org.apache.camel:camel-kafka:2.21.0'
 
+  // typesafe for configuration
+  compile "com.typesafe:config:1.3.2"
+
   // kafka dependencies
   compile 'org.apache.kafka:kafka-clients:1.1.0'
   compile 'org.apache.kafka:kafka-streams:1.1.0'
   testCompile 'junit:junit:4.12'
+
+  // logging
+  compile "ch.qos.logback:logback-classic:1.2.3"
+
+  // gson
+   compile 'com.google.code.gson:gson:2.2.4'
 }
