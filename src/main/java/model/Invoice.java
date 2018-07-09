@@ -14,6 +14,20 @@ public final class Invoice {
         return invoiceId;
     }
 
+    public String getCustomerId() {
+        return customerId;
+    }
+
+    public Float getAmount() {
+        return amount;
+    }
+
+    public String getStatus() {
+        return status;
+    }
+
+    public Invoice() {}
+
     public Invoice(final String invoiceId, final String customerId, final Float amount, final String status) {
         this.invoiceId = invoiceId;
         this.customerId = customerId;
