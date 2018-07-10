@@ -9,20 +9,17 @@ public final class Application {
     static Logger logger = LoggerFactory.getLogger(Application.class);
 
     public static void main(String[] args) {
-        logger.info("Starting Application");
+
         // load configurations
         final AppConfig appConfig = AppConfig.load();
-        System.out.println(appConfig.kafkaConfig().contentType());
 
+        // Bootstrap Producer and Consumer
+        CustomProducer.init(appConfig.kafkaConfig());
+        InvoiceConsumer.init(appConfig.kafkaConfig());
 
-        // Bootstrap Producer and send messages every minute
-
-        CustomProducer.sendMessages(appConfig.kafkaConfig());
-
-
-        // Bootstrap Producers and consumers
-        InvoiceConsumer.consumeInvoiceMessages(appConfig.kafkaConfig());
-
+        // Start new threads for producer and consumer
+        new Thread(() -> { while (true) { CustomProducer.sendMessages(appConfig.kafkaConfig()); } }).start();
+        new Thread(() -> { while (true) { InvoiceConsumer.consumeMessages(); } }).start();
     }
 
 

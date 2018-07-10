@@ -14,63 +14,64 @@ import org.apache.kafka.common.serialization.StringSerializer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.ObjectOutputStream;
 import java.util.Properties;
 import java.util.UUID;
 
 public final class CustomProducer {
 
-    private final Producer<String, Invoice> kafkaProducer;
-    static Logger logger = LoggerFactory.getLogger(CustomProducer.class);
+    private static Producer<String, Invoice> kafkaProducer;
+    private static Boolean producerExists = false;
+    private static Logger logger = LoggerFactory.getLogger(CustomProducer.class);
 
-    public CustomProducer(final AppConfig.KafkaConfig config) {
+    // Instantiate a MessageProducer
+    public static void init(final AppConfig.KafkaConfig config) {
+        // If producer was already created
+        if (!producerExists) {
+            logger.info("Instantiating a new Producer");
 
-        logger.info("Kafka configs are ");
-        logger.info("Content-Type {}", config.contentType());
-        logger.info("Destination {}", config.destination());
-        logger.info("Encoding {}", config.encoding());
-        logger.info("Topics {}", config.topics());
+            // configure consumer properties and setup consumer
+            final Properties properties = new Properties();
+            properties.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, config.destination());
+            properties.put(ProducerConfig.CLIENT_ID_CONFIG, "ApacheKafkaGettingStarted");
+            properties.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
+            properties.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, GsonSerializer.class);
+            properties.put(ProducerConfig.TRANSACTIONAL_ID_CONFIG, UUID.randomUUID().toString());
+            kafkaProducer = new KafkaProducer<>(properties);
+            producerExists = true;
+        } else {
+            kafkaProducer = kafkaProducer();
+        }
 
-        final Properties properties = new Properties();
-        properties.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, config.destination());
-        properties.put(ProducerConfig.CLIENT_ID_CONFIG, "ApacheKafkaGettingStarted");
-        properties.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
-        properties.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, GsonSerializer.class);
-        properties.put(ProducerConfig.TRANSACTIONAL_ID_CONFIG, UUID.randomUUID().toString());
-        this.kafkaProducer = new KafkaProducer<>(properties);
+        // Initialize kafka transaction manager
+        kafkaProducer().initTransactions();
     }
 
-    public Producer<String, Invoice> getKafkaProducer() { return kafkaProducer; }
+    private static Producer<String, Invoice> kafkaProducer() { return kafkaProducer; }
 
     public static void sendMessages(final AppConfig.KafkaConfig config) {
-        final Producer<String, Invoice> producer = new CustomProducer(config).getKafkaProducer();
-        final AppConfig.KafkaConfig.Topic invoiceTopic = config.topics().get(0);
-        logger.info("name {}", invoiceTopic.name());
-        producer.initTransactions();
         try {
-            producer.beginTransaction();
-            Invoice invoice = Invoice.newRandomInvoice();
-            logger.info("Started Producing New Invoice :: {}", invoice.toString());
-            producer.send(new ProducerRecord<>(
-                    invoiceTopic.name(),
-                    null,
-                    invoice.getInvoiceId(),
-                    invoice,
-                    getProducerHeaders(invoiceTopic, config))
-            );
-            producer.commitTransaction();
-            producer.flush();
-            Thread.sleep(6000);
+            kafkaProducer().beginTransaction();
+            kafkaProducer().send(producerRecord(config));
+            kafkaProducer().commitTransaction();
+            kafkaProducer().flush();
+            Thread.sleep(1000);
         } catch (Exception e) {
             logger.error("Error is ", e);
-            producer.abortTransaction();
-            producer.close();
+            kafkaProducer().abortTransaction();
+            kafkaProducer().close();
         }
     }
 
-    private static Headers getProducerHeaders(final AppConfig.KafkaConfig.Topic topic, final AppConfig.KafkaConfig config) {
+    // Create a kafkaProducer record
+    private static ProducerRecord<String, Invoice> producerRecord(final AppConfig.KafkaConfig config) {
+        final AppConfig.KafkaConfig.Topic topic = config.topics().get(0);
+        final Invoice invoice = Invoice.newRandomInvoice();
+        logger.info("Producing {}", invoice.toString());
+        return new ProducerRecord<>(topic.name(), null, System.currentTimeMillis(), invoice.getInvoiceId(), invoice, headers(topic, config));
+    }
+
+    // Setup message headers
+    private static Headers headers(final AppConfig.KafkaConfig.Topic topic, final AppConfig.KafkaConfig config) {
         final Headers headers = new RecordHeaders();
 
         headers.add(new RecordHeader("Content-Type", config.contentType().getBytes()));
