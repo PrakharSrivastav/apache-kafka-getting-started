@@ -1,8 +1,6 @@
 # apache-kafka-getting-started
 
-A Simple application to understand basics of apache-kafka. We are trying to simulate a simple payment application.
-
-For full picture of the business scenario, check  [here](docs/v1/business-case.md)
+A Simple application to understand basics of apache-kafka. Shows example examples for Producing and Consuming messages.
 
 
 # Local setup

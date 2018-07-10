@@ -9,7 +9,7 @@ public final class Application {
     static Logger logger = LoggerFactory.getLogger(Application.class);
 
     public static void main(String[] args) {
-
+        logger.info("Starting app");
         // load configurations
         final AppConfig appConfig = AppConfig.load();
 
@@ -21,6 +21,4 @@ public final class Application {
         new Thread(() -> { while (true) { CustomProducer.sendMessages(appConfig.kafkaConfig()); } }).start();
         new Thread(() -> { while (true) { InvoiceConsumer.consumeMessages(); } }).start();
     }
-
-
 }
