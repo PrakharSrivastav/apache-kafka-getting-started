@@ -72,18 +72,11 @@ public final class CustomProducer {
 
     private static Headers getProducerHeaders(final AppConfig.KafkaConfig.Topic topic, final AppConfig.KafkaConfig config) {
         final Headers headers = new RecordHeaders();
-        ByteArrayOutputStream bos = new ByteArrayOutputStream();
-        try {
-            ObjectOutputStream oos = new ObjectOutputStream(bos);
-            oos.writeObject(topic.target());
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
 
         headers.add(new RecordHeader("Content-Type", config.contentType().getBytes()));
         headers.add(new RecordHeader("Encoding", config.encoding().getBytes()));
         headers.add(new RecordHeader("Source", topic.source().getBytes()));
-        headers.add(new RecordHeader("Target", bos.toByteArray()));
+        headers.add(new RecordHeader("Target", topic.target().getBytes()));
 
         return headers;
     }

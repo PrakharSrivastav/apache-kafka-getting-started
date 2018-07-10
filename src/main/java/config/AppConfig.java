@@ -19,14 +19,10 @@ public final class AppConfig {
         final Config config = ConfigFactory.load();
 
         // set all the topics
-        final List<String> invoiceTarget = Arrays.asList(config.getString("kafka.topic.invoice.target").split(","));
-        final List<String> settleTarget = Arrays.asList(config.getString("kafka.topic.settle.target").split(","));
-        final List<String> notificationTarget = Arrays.asList(config.getString("kafka.topic.notification.target").split(","));
-
         final KafkaConfig.Topic invoice = new KafkaConfig.Topic(
                 config.getString("kafka.topic.invoice.name"),
                 config.getString("kafka.topic.invoice.source"),
-                invoiceTarget,
+                config.getString("kafka.topic.invoice.target"),
                 config.getString("kafka.topic.invoice.status"),
                 config.getString("kafka.topic.invoice.action")
         );
@@ -34,7 +30,7 @@ public final class AppConfig {
         final KafkaConfig.Topic settle = new KafkaConfig.Topic(
                 config.getString("kafka.topic.settle.name"),
                 config.getString("kafka.topic.settle.source"),
-                settleTarget,
+                config.getString("kafka.topic.settle.target"),
                 config.getString("kafka.topic.settle.status"),
                 config.getString("kafka.topic.settle.action")
         );
@@ -42,7 +38,7 @@ public final class AppConfig {
         final KafkaConfig.Topic notification = new KafkaConfig.Topic(
                 config.getString("kafka.topic.notification.name"),
                 config.getString("kafka.topic.notification.source"),
-                notificationTarget,
+                config.getString("kafka.topic.notification.target"),
                 config.getString("kafka.topic.notification.status"),
                 config.getString("kafka.topic.notification.action")
         );
@@ -78,11 +74,11 @@ public final class AppConfig {
         public static class Topic {
             private final String name;
             private final String source;
-            private final List<String> target;
+            private final String target;
             private final String status;
             private final String action;
 
-            public Topic(String name, String source, List<String> target, String status, String action) {
+            public Topic(String name, String source, String target, String status, String action) {
                 this.name = name;
                 this.source = source;
                 this.target = target;
@@ -94,7 +90,7 @@ public final class AppConfig {
 
             public String source() { return source; }
 
-            public List<String> target() { return target; }
+            public String target() { return target; }
 
             public String status() { return status; }
 

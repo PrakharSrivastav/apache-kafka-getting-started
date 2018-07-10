@@ -13,15 +13,16 @@ public final class Application {
         // load configurations
         final AppConfig appConfig = AppConfig.load();
         System.out.println(appConfig.kafkaConfig().contentType());
-        // Bootstrap Producers and consumers
-        InvoiceConsumer.consumeInvoiceMessages(appConfig.kafkaConfig());
-
 
 
         // Bootstrap Producer and send messages every minute
-//        while (true) {
-//            CustomProducer.sendMessages(appConfig.kafkaConfig());
-//        }
+
+        CustomProducer.sendMessages(appConfig.kafkaConfig());
+
+
+        // Bootstrap Producers and consumers
+        InvoiceConsumer.consumeInvoiceMessages(appConfig.kafkaConfig());
+
     }
 
 
